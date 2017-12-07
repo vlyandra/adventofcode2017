@@ -1,4 +1,4 @@
-package main
+package day01
 
 import (
 	"bufio"
@@ -7,7 +7,13 @@ import (
 	"strconv"
 )
 
-// Solves the problem below:
+var scanner *bufio.Scanner
+
+func init() {
+	scanner = bufio.NewScanner(os.Stdin)
+}
+
+// PartOne solves the problem below:
 //The captcha requires you to review a sequence of digits (your puzzle input) and find the sum of all digits that match the next digit in the list. The list is circular, so the digit after the last digit is the first digit in the list.
 //
 //For example:
@@ -17,30 +23,15 @@ import (
 //1234 produces 0 because no digit matches the next.
 //91212129 produces 9 because the only digit that matches the next one is the last digit, 9.
 
-func main() {
+func PartOne() {
 	entered := false
-	scanner := bufio.NewScanner(os.Stdin)
+
 	scanner.Split(bufio.ScanRunes)
 
 	for !entered {
 		var err error
 		fmt.Println("Enter captcha:")
-		/*
-		input, err := reader.ReadString('\n')
-		fmt.Println("Input was %s", input)
-		if err != nil {
-			fmt.Println("Error reading input. Try again.")
-			continue
-		}
 
-		var sep []string
-		if len(input) == 0 {
-			fmt.Println("Captcha must be an integer length > 0. Try again.")
-			continue
-		} else {
-			sep = strings.Split(input, "")
-		}
-		*/
 		sum := 0
 		prev := 0
 		first := true
@@ -49,7 +40,6 @@ func main() {
 
 		for scanner.Scan() {
 			ele := scanner.Text()
-			fmt.Println("Ele: " + ele)
 			if ele == "\n" {
 				break
 			} else {
@@ -58,29 +48,17 @@ func main() {
 					fmt.Println("Captcha must be an integer: Try again.")
 					break
 				}
+
 				if first {
 					firstint = current
 					first = false
 				}
-				//for i := 0; i < len(sep); i++ {
-				//	if i == len(sep)-1 {
-				//		next, err = strconv.Atoi(sep[0])
-				//	} else {
-				//		next, err = strconv.Atoi(sep[i+1])
-				//	}
-				//
-				//	if err != nil {
-				//		fmt.Println("Captcha must be an integer. Try again.")
-				//		break
-				//	}
 
 				if current == prev {
 					sum += current
 				}
 
 				prev = current
-				fmt.Println("Current sum:", sum)
-				//}
 			}
 		}
 
@@ -95,4 +73,48 @@ func main() {
 		fmt.Println(sum)
 		entered = true
 	}
+}
+
+// PartTwo solves the following addition to part 1
+//consider the digit halfway around the circular list. That is, if your list contains 10 items, only include a digit in your sum if the digit 10/2 = 5 steps forward matches it. Fortunately, your list has an even number of elements.
+//
+//For example:
+//
+//1212 produces 6: the list contains 4 items, and all four digits match the digit 2 items ahead.
+//1221 produces 0, because every comparison is between a 1 and a 2.
+//123425 produces 4, because both 2s match each other, but no other digit has a match.
+//123123 produces 12.
+//12131415 produces 4.
+
+func PartTwo() {
+	var capArray []int
+	scanner.Split(bufio.ScanRunes)
+	fmt.Println("Enter captcha:")
+
+	for scanner.Scan() {
+		ele := scanner.Text()
+		if ele == "\n" {
+			break
+		} else {
+			num, err := strconv.Atoi(ele)
+			if err != nil {
+				fmt.Println("Captcha must be an integer.")
+				return
+			}
+			capArray = append(capArray, num)
+		}
+	}
+
+	capLen := len(capArray)
+	a := capArray
+	ahead := capLen/2
+	sum := 0
+	for i, ele := range capArray {
+		if ele == a[i + ahead] {
+			sum += ele
+		}
+
+		a = append(a, ele)
+	}
+	fmt.Println(sum)
 }
