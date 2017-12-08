@@ -14,7 +14,7 @@ var r *csv.Reader
 var csvFile *os.File
 
 func init() {
-	f, err := os.Open("src/day02/test.csv")
+	f, err := os.Open("src/day02/input.csv")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -87,5 +87,25 @@ What is the sum of each row's result in your puzzle input?
 func PartTwo() {
 	sum := 0
 
-
+	for {
+		record, err := r.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+		for iind, i := range record {
+			for jind, j := range record {
+				inum, _ := strconv.Atoi(i)
+				jnum, _ := strconv.Atoi(j)
+				if iind != jind && inum % jnum == 0 {
+					fmt.Println("Adding to sum: " + strconv.Itoa(inum/jnum))
+					sum += inum/jnum
+					break
+				}
+			}
+		}
+	}
+	fmt.Println(sum)
 }
