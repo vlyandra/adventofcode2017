@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/vlyandra/adventofcode2017/src/day02"
+	"github.com/vlyandra/adventofcode2017/src/day04"
 )
 
 func main() {
-	day02.PartTwo()
+	day04.PartOne()
 }
