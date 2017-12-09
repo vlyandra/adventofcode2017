@@ -61,7 +61,41 @@ iiii oiii ooii oooi oooo is valid.
 oiii ioii iioi iiio is not valid - any of these words can be rearranged to form any other word.
 Under this new system policy, how many passphrases are valid?
  */
- 
-func PartTwo() {
 
+func PartTwo() {
+	f, err := os.Open("src/day04/input.txt")
+	defer f.Close()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	r := bufio.NewScanner(f)
+	count := 0
+
+	for r.Scan() {
+		in := r.Text()
+		arr := strings.Split(in, " ")
+
+		var splitarr []string
+
+		for _, ele := range arr {
+			split := strings.Split(ele, "")
+			sort.Strings(split)
+			splitarr = append(splitarr, strings.Join(split, ""))
+		}
+
+		sort.Strings(splitarr)
+		repeat := false
+
+		for i := 0; i < (len(splitarr)-1); i++ {
+			if splitarr[i+1] == splitarr[i] {
+				repeat = true
+				break
+			}
+		}
+		if !repeat {
+			count++
+		}
+	}
+	fmt.Println(count)
 }
