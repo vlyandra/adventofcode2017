@@ -1,5 +1,17 @@
 package day06
 
+import (
+	"os"
+	"log"
+	"encoding/csv"
+	"bufio"
+	"strconv"
+	"github.com/fvbock/trie"
+	"strings"
+	"fmt"
+	"math"
+)
+
 /* PartOne solves the following problem:
 In this area, there are sixteen memory banks; each memory bank can hold any number of blocks. The goal of the reallocation routine is to balance the blocks between the memory banks.
 
@@ -20,6 +32,100 @@ At this point, we've reached a state we've seen before: 2 4 1 2 was already seen
 Given the initial block counts in your puzzle input, how many redistribution cycles must be completed before a configuration is produced that has been seen before?
  */
 
-func PartOne() {
-	
+func PartOne() ([]int, int){
+	f, err := os.Open("src/day06/input.csv")
+	defer f.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+	r := csv.NewReader(bufio.NewReader(f))
+	r.Comma = '\t'
+
+	line, err := r.Read()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var arr []int
+	for _, ele := range line {
+		num, err := strconv.Atoi(ele)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		arr = append(arr, num)
+	}
+
+	past := trie.NewTrie()
+	count := untilRepeat(arr, past)
+	fmt.Println(count)
+	return arr, count
+}
+
+func toString(arr []int) string {
+	sarr := make([]string, len(arr))
+	for i, ele := range arr {
+		sarr[i] = strconv.Itoa(ele)
+	}
+
+	return strings.Join(sarr, ",")
+}
+
+func seen(arr []int, past *trie.Trie) bool {
+	return past.Has(toString(arr))
+}
+
+func findMax(arr []int) (int, int) {
+	maxi := 0
+	max := 0
+
+	for i, ele := range arr {
+		if ele > max {
+			maxi = i
+			max = ele
+		}
+	}
+	return maxi, max
+}
+
+func untilRepeat(arr []int, past *trie.Trie) int {
+	count := 0
+	for !seen(arr, past) {
+		past.Add(toString(arr))
+		maxi, dist := findMax(arr)
+		per := int(math.Ceil(float64(dist)/float64(len(arr))))
+		arr[maxi] = 0
+		i := maxi + 1
+		for {
+			if i >= len(arr) {
+				i = 0
+			}
+			if dist < per {
+				arr[i] += dist
+				break
+			} else {
+				arr[i] += per
+				dist -= per
+			}
+			i++
+		}
+		count++
+	}
+
+	return count
+}
+
+/* PartTwo solves the following addition to PartOne:
+Out of curiosity, the debugger would also like to know the size of the loop: starting from a state that has already been seen, how many block redistribution cycles must be performed before that same state is seen again?
+
+In the example above, 2 4 1 2 is seen again after four cycles, and so the answer in that example would be 4.
+
+How many cycles are in the infinite loop that arises from the configuration in your puzzle input?
+ */
+
+func PartTwo() {
+	rep, _ := PartOne()
+	past := trie.NewTrie()
+
+	fmt.Println(untilRepeat(rep, past))
 }
